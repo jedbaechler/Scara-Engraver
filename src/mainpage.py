@@ -31,5 +31,13 @@
         
         @subsection FSM             Finite State Machine Diagrams
         
-        @image                      html    [whatever the FSM png name is]  "SCARA Robot FSM Diagrams"  width = 800px   
+        @image                      html    [User_Task_FSM.pdf]  "User Task FSM"  width = 800px
+        
+        @image                      html    [Position_Check_Task_FSM.pdf]   "Position Check Task FSM"  width = 800px
+        
+        @image                      html    [Encoder_Task_FSM.pdf]   "Encoder Task FSM"  width = 800px
+        
+        @image                      html    [Controller_Task_FSM.pdf]   "Controller Task FSM"  width = 800px
+        
+        @image                      html    [Motor_Task_FSM.pdf]   "Motor Task FSM"  width = 800px
 '''                         
