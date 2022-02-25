@@ -25,19 +25,19 @@
                                 position checker and our controller to complete the closed loop.      
                                 
                                 
-        @subsection Tasks           Task Diagram
+    @subsection Tasks           Task Diagram
    
-        @image                      html    SCARA_Task_Diagram-1.png    "SCARA Robot Task Diagram"  width = 800px 
-        
-        @subsection FSM             Finite State Machine Diagrams
-        
-        @image                      html    [User_Task_FSM.pdf]  "User Task FSM"  width = 800px
-        
-        @image                      html    [Position_Check_Task_FSM.pdf]   "Position Check Task FSM"  width = 800px
-        
-        @image                      html    [Encoder_Task_FSM.pdf]   "Encoder Task FSM"  width = 800px
-        
-        @image                      html    [Controller_Task_FSM.pdf]   "Controller Task FSM"  width = 800px
-        
-        @image                      html    [Motor_Task_FSM.pdf]   "Motor Task FSM"  width = 800px
+    @image                      html    SCARA_Task_Diagram-1.png    "SCARA Robot Task Diagram"  width = 800px 
+    
+    @subsection FSM             Finite State Machine Diagrams
+    
+    @image                      html    User_Task_FSM-1.png           "User Task FSM"  width = 800px
+    
+    @image                      html    Position_Check_Task_FSM-1.png "Position Check Task FSM"  width = 800px
+    
+    @image                      html    Encoder_Task_FSM-1.png        "Encoder Task FSM"  width = 800px
+    
+    @image                      html    Controller_Task_FSM-1.png     "Controller Task FSM"  width = 800px
+    
+    @image                      html    Motor_Task_FSM-1.png          "Motor Task FSM"  width = 800px
 '''                         

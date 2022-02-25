@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.9.2"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>SCARA PLOTTER: Main Page</title>
+<title>SCARA PLOTTER: SCARA Robot Design</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -72,7 +72,7 @@ var searchBox = new SearchBox("searchBox", "search",'Search','.html');
 </div>
 <script type="text/javascript">
 /* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
-$(document).ready(function(){initNavTree('index.html',''); initResizable(); });
+$(document).ready(function(){initNavTree('Design.html',''); initResizable(); });
 /* @license-end */
 </script>
 <div id="doc-content">
@@ -90,17 +90,44 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </iframe>
 </div>
 
-<div class="header">
-  <div class="headertitle"><div class="title">SCARA PLOTTER Documentation</div></div>
+<div><div class="header">
+  <div class="headertitle"><div class="title">SCARA Robot Design </div></div>
 </div><!--header-->
 <div class="contents">
-<ul><li><a href="index.html"><span>Main&#160;Page</span></a>
-</li><li><a href="pages.html"><span>Related&#160;Pages</span></a>
-</li><li><a href="files.html"><span>Files</span></a>
-<ul><li><a href="files.html"><span>File&#160;List</span></a>
-</li></ul>
-</li></ul>
-</div><!-- contents -->
+<div class="textblock"><h1><a class="anchor" id="sec_intro"></a>
+Software Design</h1>
+<p >To make our lives easier we plan on using the program Inkscape to convert our images into HPGL files. With these files we can grab the x and y coordinates for our plot and use our subsequent analysis to derive the arm angles needed for our desired coordinates.</p>
+<p >We will use inverse kinematics we learned from ME 423 to get the necessary angles such that our end effector is at our coordinate. The PID controller will take these new coordinates and compute an appropriate motor duty cycle so that our motors spin to the right set point. The encoder then passes the current position along to our position checker and our controller to complete the closed loop.</p>
+<h2><a class="anchor" id="Tasks"></a>
+Task Diagram</h2>
+<div class="image">
+<img src="SCARA_Task_Diagram-1.png" alt="" width="800px"/>
+<div class="caption">
+SCARA Robot Task Diagram</div></div>
+<h2><a class="anchor" id="FSM"></a>
+Finite State Machine Diagrams</h2>
+<div class="image">
+<img src="User_Task_FSM-1.png" alt="" width="800px"/>
+<div class="caption">
+User Task FSM</div></div>
+<div class="image">
+<img src="Position_Check_Task_FSM-1.png" alt="" width="800px"/>
+<div class="caption">
+Position Check Task FSM</div></div>
+<div class="image">
+<img src="Encoder_Task_FSM-1.png" alt="" width="800px"/>
+<div class="caption">
+Encoder Task FSM</div></div>
+<div class="image">
+<img src="Controller_Task_FSM-1.png" alt="" width="800px"/>
+<div class="caption">
+Controller Task FSM</div></div>
+<div class="image">
+<img src="Motor_Task_FSM-1.png" alt="" width="800px"/>
+<div class="caption">
+Motor Task FSM</div></div>
+ </div></div><!-- contents -->
+</div><!-- PageDoc -->
 </div><!-- doc-content -->
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->

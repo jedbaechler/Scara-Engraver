@@ -24,12 +24,22 @@
 */
 var NAVTREE =
 [
-  [ "Scara Engraver", "index.html", ]
+  [ "SCARA PLOTTER", "index.html", [
+    [ "SCARA Robot Design", "Design.html", [
+      [ "Software Design", "Design.html#sec_intro", [
+        [ "Task Diagram", "Design.html#Tasks", null ],
+        [ "Finite State Machine Diagrams", "Design.html#FSM", null ]
+      ] ]
+    ] ],
+    [ "Files", "files.html", [
+      [ "File List", "files.html", "files_dup" ]
+    ] ]
+  ] ]
 ];
 
 var NAVTREEINDEX =
 [
-"index.html"
+"Design.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';
