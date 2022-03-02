@@ -116,6 +116,35 @@ if __name__ == "__main__":
     mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
     enc2 = EncoderReader.EncoderReader(2) #now for encoder 1
     controller2 = controlloop.ClosedLoop(.2, 0, 0, 30000) #sets gain and setpoint of m2
+    
+    ''' ISR Definition and Initiation'''
+    
+    pinPC2 = pyb.Pin (pyb.Pin.board.PC2, pyb.Pin.IN)
+    tim1 = pyb.Timer (1, freq=100)
+
+
+    def ISR_SCREEN(IRQ_src):
+        '''
+        @brief      sets interrupt every millisecond where ADC value is read
+        @details    Once data is collected for one second, "Stop Transmission" line
+                    is sent where CTRL-C and CTRL-D commands are sent over serial
+                    communication. 
+        @param      IRQ_src         The cause of the interrupt
+        '''
+        
+        if pinPC2.value() == 1:
+            print('Lid is closed')
+            
+        elif pinPC2.value() == 0:
+            print('Lid is open')
+            mot1.disable()
+            mot2.disable()
+        # Set mosfet control pin off for laser
+        # turn motors off and halt the operation of tasks
+        # move to home position and wait for user to begin program again.
+    
+
+    tim1.callback(ISR_SCREEN) # runs when interrupt is called
 
     # Create the tasks. If trace is enabled for any task, memory will be
     # allocated for state transition tracing, and the application will run out
