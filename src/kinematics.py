@@ -53,7 +53,7 @@ def fwd_kinematics(theta1, theta2, l1, l2, offset):
     print(end_effector)
     print('Elapsed Time: %4.2f microseconds' % (diff))
     
-def inv_kinematics(x, y, l1, l2):
+def inv_kinematics(x, y):
     '''@brief       derives robot arm angles necessary for desired end position
        @details     Using the same analyses from ME 423, we go backwards and
                     start with the end effector position, from here we derive
@@ -65,12 +65,23 @@ def inv_kinematics(x, y, l1, l2):
        @param       l2  robot arm 2 length
        '''
        
-    theta1 = atan2(y/l1, (x-l2)/l1)
-    theta2 = acos((x**2 + y**2 + l1 + l2)/(2*l1*l2))
-#     theta2 = 0
-    theta_1 = atan(x/y) - atan(l2*sin(theta2))/(l1+l2*cos(theta2))
-    print(theta_1, theta2)
+       # l1 = 8 in
+       # l2 = 4 in
+
+    theta_1_first = 2*atan((16*y - (144*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                            (x^2 + y^2 - 144) + (x^2*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                            (x^2 + y^2 - 144) + (y^2*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                            (x^2 + y^2 - 144))/(x^2 + 16*x + y^2 + 48))
+
+    theta_1_second = 2*atan((16*y + (144*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                             (x^2 + y^2 - 144) - (x^2*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                             (x^2 + y^2 - 144) - (y^2*(-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2))/\
+                             (x^2 + y^2 - 144))/(x^2 + 16*x + y^2 + 48))
+
+    theta_2_first = -2*atan((-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2)/(x^2 + y^2 - 144))
+    theta_2_second = 2*atan((-(x^2 + y^2 - 16)*(x^2 + y^2 - 144))^(1/2)/(x^2 + y^2 - 144))
+
 
 if __name__ == '__main__':
     fwd_kinematics(pi/2, 0, 6, 3, -4)
-#     inv_kinematics(4.2426, 7.2426, 6, 3)
+#     inv_kinematics(4.2426, 7.2426)
