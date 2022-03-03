@@ -1,5 +1,5 @@
 '''
-@file hpgl_import.py
+@file x_yimport.py
 '''
 
 # import pyb
