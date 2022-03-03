@@ -1,0 +1,31 @@
+'''
+@file hpgl_import.py
+'''
+
+# import pyb
+# import utime
+
+filename = 'xy.txt'
+xypos = []
+x = []
+y = []
+
+with open(filename, 'r') as x_y:
+    listpos = x_y.readlines()
+    for i in listpos:
+        xypos.append(i.strip().split(','))
+    for xind in range(1,len(listpos)):
+        x.append(float(xypos[xind][1].strip('"')))
+    for yind in range(1,len(listpos)):
+        y.append(float(xypos[yind][2].strip('"')))
+    print(x, len(x))
+    print(y, len(y))
+#     for i in hpgl_list:
+#         try:
+#             print(i)
+#         except:
+#             print('Not able to parse values')
+            
+#     utime.sleep(1)
+#     for i in range(len(hpgl_out)):
+#         print(hpgl_out[i])
