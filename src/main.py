@@ -21,7 +21,9 @@ import task_share
 import EncoderReader, controlloop, pyb, utime
 import motor_baechler_chappell_wimberley as motor_drv
 
-
+def position_check():
+    current_x = enc1.read()
+    current_y = enc2.read()
 
 def motor1_func ():
     '''
@@ -35,7 +37,7 @@ def motor1_func ():
         try:
             PWM1 = controller1.run(enc1.read(), 15000)
             controller1.add_data()
-#             print('Motor 1 Data:', enc1.read(), PWM1)
+#           print('Motor 1 Data:', enc1.read(), PWM1)
             mot1.set_duty(PWM1)
             yield (0)
         except:
@@ -56,7 +58,7 @@ def motor2_func():
         try:
             PWM2 = controller2.run(enc2.read())
             controller2.add_data()
-#             print('Motor 2 Data:', enc2.read(), PWM2)
+#           print('Motor 2 Data:', enc2.read(), PWM2)
             mot2.set_duty(PWM2)
             yield (0)
         except:
