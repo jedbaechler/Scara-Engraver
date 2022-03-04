@@ -18,6 +18,6 @@ with open(filename, 'r') as x_y:
         x.append(float(xypos[xind][1].strip('"')))
     for yind in range(1,len(listpos)):
         y.append(float(xypos[yind][2].strip('"')))
-    print(x, len(x))
-    print(y, len(y))
+    print(x)
+    print(y)
     

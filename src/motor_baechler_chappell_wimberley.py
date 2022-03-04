@@ -48,6 +48,9 @@ class MotorDriver():
 #             print('Duty negative')
             self.timchan1.pulse_width_percent(0)
             self.timchan2.pulse_width_percent(abs(duty))
+    
+    def disable(self):
+        self.ENA.low()
 
 if __name__ == '__main__':
     '''@brief   testing block
