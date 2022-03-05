@@ -24,6 +24,11 @@ import motor_baechler_chappell_wimberley as motor_drv
 def position_check():
     current_x = enc1.read()
     current_y = enc2.read()
+    
+    if current_x  next_c:
+        x_Queue.get()
+        
+   # if current_position within 5 ticks, proceed
 
 def motor1_func ():
     '''
