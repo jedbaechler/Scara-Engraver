@@ -18,7 +18,7 @@ import gc
 import pyb
 import cotask
 import task_share
-import EncoderReader, controlloop, pyb, utime, x_yimport
+import EncoderReader, controlloop, pyb, utime, x_yimport, user_task
 import motor_baechler_chappell_wimberley as motor_drv
 
 def position_check():
@@ -102,7 +102,13 @@ if __name__ == "__main__":
     q0 = task_share.Queue ('L', 16, thread_protect = False, overwrite = False,
                            name = "Queue 0")
     
-    
+    xypos = []
+
+    next_x = task_share.Queue('f', 1000, thread_protect = False, overwrite = False,
+                             name = 'x-coordinates')
+    next_y = task_share.Queue('f', 1000, thread_protect = False, overwrite = False,
+                             name = 'y-coordinates')
+
     mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
     des_pos = task_share.Share('h', name='des_pos') #shares desired position
     kp = task_share.Share('h', name='kp') #shares kp
@@ -167,6 +173,20 @@ if __name__ == "__main__":
 #                          period = 1, profile = True, trace = False)
     #runs task on motor 2, controlling the object
     
+    filename = user_task.run()
+    
+    with open(filename, 'r') as x_y:
+        listpos = x_y.readlines()
+        for i in listpos:
+            xypos.append(i.strip().split(','))
+        for xind in range(1,len(listpos)):
+            next_x.put(float(xypos[xind][1].strip('"')))
+        for yind in range(1,len(listpos)):
+            next_y.put(float(xypos[yind][2].strip('"')))
+    
+        print(next_x)
+        print(next_y)
+
     cotask.task_list.append (task1)
 #     cotask.task_list.append (task2)
 
