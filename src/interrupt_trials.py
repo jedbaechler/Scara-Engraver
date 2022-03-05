@@ -13,11 +13,14 @@
     
 import pyb, utime, task_share
 import micropython
+import motor_baechler_chappell_wimberley as motor_drv
 micropython.alloc_emergency_exception_buf(100)
 
 
 pinPC1 = pyb.Pin (pyb.Pin.board.PC1, pyb.Pin.IN)
 tim1 = pyb.Timer (1, freq=100)
+pinPB0 = pyb.Pin(pyb.Pin.board.PB0, pyb.Pin.OUT_PP)
+
 
 
 def ISR_SCREEN(IRQ_src):
@@ -36,9 +39,10 @@ def ISR_SCREEN(IRQ_src):
         print('Lid is open')
         
         # Set mosfet control pin off for laser
+        pinPB0.low()
         # turn motors off and halt the operation of tasks
-        # move to home position and wait for user to begin program again.
-    
+        motor_drv.disable()
+   
 
 tim1.callback(ISR_SCREEN) # runs when interrupt is called
 
