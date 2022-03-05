@@ -31,11 +31,10 @@ limit_trigger1 = 0
 limit_trigger2 = 0
 
 while True:
-    enc1.read()
-    enc2.read()
+    
     if pinC3.value() == 1:
         print('Arm 1 has reached its hardstop')
-        enc1 = EncoderReader.EncoderReader(1)
+        enc1.zero()
         mot1.disable()
         limit_trigger1 = 1
         
@@ -45,7 +44,7 @@ while True:
 
     if pinC2.value() == 1:
         print('Arm 2 has reached its hardstop')
-        enc2 = EncoderReader.EncoderReader(2)
+        enc2.zero()
         mot2.disable()
         limit_trigger2 = 1
     else:
@@ -54,6 +53,5 @@ while True:
     if limit_trigger1 == 1 and limit_trigger2 == 1:
         print('Zero positions have been reached')
         break
+print(enc1.read(), enc2.read())
     
-    
-#     print(enc1.read(), enc2.read())

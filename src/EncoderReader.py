@@ -27,7 +27,7 @@ class EncoderReader:
            '''
         self.current_position = 0
         self.delta = 0
-        
+        self.enc_number = enc_number
 
         
         if enc_number == 1:
@@ -55,6 +55,7 @@ class EncoderReader:
 
         previous_position = self.current_position % 65535
         self.delta = self.timer.counter() - previous_position
+
         if self.delta < -65535/2:
             self.delta += 65535
         elif self.delta > 65535/2:
@@ -70,6 +71,11 @@ class EncoderReader:
         self.current_position = 0
         self.delta = 0
         
+        if self.enc_number == 1:
+            self.timer = pyb.Timer(4, prescaler = 0, period = 65535)
+        if self.enc_number == 2:
+            self.timer = pyb.Timer(8, prescaler = 0, period = 65535)
+        
 if __name__ == "__main__":
     '''@brief    testing block for encoder-motor pair
     '''
@@ -81,9 +87,9 @@ if __name__ == "__main__":
     IN2 = pyb.Pin (pyb.Pin.board.PB5, pyb.Pin.OUT_PP)
     tim3 = pyb.Timer (3, freq=20000)
     moe = motor.MotorDriver(ENA, IN1, IN2, tim3)
-    moe.set_duty(50)
+    moe.set_duty(-50)
 
     red = EncoderReader(1)
-    while True: #testing code
-        print(red.read())
+#     while True: #testing code 
+#         print(red.read())
 #         utime.sleep_ms(100)
