@@ -25,7 +25,7 @@ tim5 = pyb.Timer (5, freq=20000) #using timer 5, must be different than m1
 mot1 = motor_drv.MotorDriver(ENA, IN1, IN2, tim3)
 mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5)
 
-mot1.set_duty(-25)
+mot1.set_duty(25)
 mot2.set_duty(-25)
 limit_trigger1 = 0
 limit_trigger2 = 0
@@ -53,5 +53,6 @@ while True:
     if limit_trigger1 == 1 and limit_trigger2 == 1:
         print('Zero positions have been reached')
         break
+    
 print(enc1.read(), enc2.read())
     

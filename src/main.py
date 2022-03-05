@@ -18,15 +18,17 @@ import gc
 import pyb
 import cotask
 import task_share
-import EncoderReader, controlloop, pyb, utime
+import EncoderReader, controlloop, pyb, utime, x_yimport
 import motor_baechler_chappell_wimberley as motor_drv
 
 def position_check():
     current_x = enc1.read()
     current_y = enc2.read()
     
-    if current_x  next_c:
-        x_Queue.get()
+    if current_x <  next_c:
+        next_x.get()
+        next_y.get()
+        #must figure out how to hold last coordinate for position check
         
    # if current_position within 5 ticks, proceed
 
@@ -90,6 +92,7 @@ def task2_fun ():
 # This code creates a share, a queue, and two tasks, then starts the tasks. The
 # tasks run until somebody presses ENTER, at which time the scheduler stops and
 # printouts show diagnostic information about the tasks, share, and queue.
+
 if __name__ == "__main__":
     print ('\033[2JTesting ME405 stuff in cotask.py and task_share.py\r\n'
            'Press ENTER to stop and show diagnostics.')
@@ -98,6 +101,7 @@ if __name__ == "__main__":
     share0 = task_share.Share ('h', thread_protect = False, name = "Share 0")
     q0 = task_share.Queue ('L', 16, thread_protect = False, overwrite = False,
                            name = "Queue 0")
+    
     
     mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
     des_pos = task_share.Share('h', name='des_pos') #shares desired position
@@ -122,7 +126,7 @@ if __name__ == "__main__":
 
     mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
     enc2 = EncoderReader.EncoderReader(2) #now for encoder 1
-    controller2 = controlloop.ClosedLoop(.2, 0, 0, 30000) #sets gain and setpoint of m2
+    controller2 = controlloop.ClosedLoop(.1, 0.00005, 0.75, 30000) #sets gain and setpoint of m2
     
     ''' ISR Definition and Initiation'''
     
