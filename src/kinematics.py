@@ -32,26 +32,45 @@ def fwd_kinematics(theta1, theta2, l1, l2, offset):
        @param       offset  arm 2 angular offset from arm 2
        '''
        
-    d1 = 0
-    d2 = offset
+    d1 = 8
+    l2_reset = offset
     alpha1 = 0
     alpha2 = 0
+    d2 = 4
     start = utime.ticks_us()
-    A1 = np.array([[cos(theta1), -sin(theta1)*cos(alpha1),  sin(theta1)*sin(alpha1), l1*cos(theta1)],
-                   [sin(theta1), cos(theta1)*cos(alpha1), -cos(theta1)*sin(alpha1), l1*sin(theta1)],
+    
+    A1 = np.array([[cos(theta1), -sin(theta1)*cos(alpha1),  sin(theta1)*sin(alpha1), 0],
+                   [sin(theta1), cos(theta1)*cos(alpha1), -cos(theta1)*sin(alpha1), 0],
                    [0, sin(alpha1), cos(alpha1), d1],
                    [0, 0, 0, 1]])
-    A2 = np.array([[cos(theta2), -sin(theta2)*cos(alpha2), sin(theta2)*sin(alpha2), l2*cos(theta2)],
+    
+    A1Jeremy = np.array([[cos(theta1), -sin(theta1)*cos(alpha1),  sin(theta1)*sin(alpha1), 0],
+                   [sin(theta1), cos(theta1)*cos(alpha1), -cos(theta1)*sin(alpha1), 0],
+                   [0, sin(alpha1), cos(alpha1), d1],
+                   [0, 0, 0, 1]])
+    
+    A2 = np.array([[cos(theta2-l2_reset), -sin(theta2-l2_reset)*cos(alpha2), sin(theta2)*sin(alpha2), l2*cos(theta2-l2_reset)],
+                   [sin(theta2-l2_reset), cos(theta2-l2_reset)*cos(alpha2), -cos(theta2)*sin(alpha2), l2*sin(theta2-l2_reset)],
+                   [0, sin(alpha2), cos(alpha2), -d2],
+                   [0, 0, 0, 1]])
+    
+    A2Jeremy = np.array([[cos(theta2), -sin(theta2)*cos(alpha2), sin(theta2)*sin(alpha2), l2*cos(theta2)],
                    [sin(theta2), cos(theta2)*cos(alpha2), -cos(theta2)*sin(alpha2), l2*sin(theta2)],
                    [0, sin(alpha2), cos(alpha2), d2],
                    [0, 0, 0, 1]])
+    
     A12 = np.dot(A1,A2)
+    A12J = np.dot(A1Jeremy, A2Jeremy)
     P = np.array([[0],[0],[3],[1]])
     end_effector = np.dot(A12, P)
     end = utime.ticks_us()
     diff = utime.ticks_diff(end, start)
+    print(A12)
+    print(A12J)
     print(end_effector)
     print('Elapsed Time: %4.2f microseconds' % (diff))
+    
+    #fwd kinematics end effectors must be adjusted
     
 def inv_kinematics(x, y):
     '''@brief       derives robot arm angles necessary for desired end position
@@ -68,23 +87,19 @@ def inv_kinematics(x, y):
        # l1 = 8 in
        # l2 = 4 in
 
-    theta_1_first = 2*atan((16*y - (144*(-(x**2 + y**2 - 16)**(x**2 + y**2 - 144))**(1/2))/
-                            (x**2 + y**2 - 144) + (x**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/
-                            (x**2 + y**2 - 144) + (y**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/
-                            (x**2 + y**2 - 144))/(x**2 + 16*x + y**2 + 48))
-    
+    theta_1_first = 2*atan((16*y - (144*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144) + (x**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144) + (y**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144))/(x**2 + 16*x + y**2 + 48))
+        
     theta_2_first = -2*atan((-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2)/(x**2 + y**2 - 144))
 
 
-    theta_1_second = 2*atan((16*y + (144*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/
-                             (x**2 + y**2 - 144) - (x**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/
-                             (x**2 + y**2 - 144) - (y**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/
-                             (x**2 + y**2 - 144))/(x**2 + 16*x + y**2 + 48))
+    theta_1_second = 2*atan((16*y + (144*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144) - (x**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144) - (y**2*(-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2))/(x**2 + y**2 - 144))/(x**2 + 16*x + y**2 + 48))
 
     theta_2_second = 2*atan((-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2)/(x**2 + y**2 - 144))
 
     return (theta_1_first, theta_2_first)
+# x^2 + y^2 >= <= 8
+#inv kinematics is exactly like it is in matlab
 
 if __name__ == '__main__':
-    #fwd_kinematics(pi/2, 0, 6, 3, -4)
-    print(inv_kinematics(4.76, 6.78))
+    print(fwd_kinematics(0, 0, 8, 4, 1.57))
+    print(inv_kinematics(4,0))
