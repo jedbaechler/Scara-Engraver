@@ -19,6 +19,7 @@ from ulab import numpy as np
 from math import sin, cos, atan2, pi, acos, asin, atan
 
 
+
 ## Need to define the universe to z0 reference frame. This will be done using solidworks.
 def fwd_kinematics(theta1, theta2, l1, l2, offset):
     '''@brief       derives end effector position and orientation
@@ -32,43 +33,46 @@ def fwd_kinematics(theta1, theta2, l1, l2, offset):
        @param       offset  arm 2 angular offset from arm 2
        '''
        
-    d1 = 8
+    h1 = 8
     l2_reset = offset
     alpha1 = 0
     alpha2 = 0
-    d2 = 4
+    h2 = 4
     start = utime.ticks_us()
     
-    A1 = np.array([[cos(theta1), -sin(theta1)*cos(alpha1),  sin(theta1)*sin(alpha1), 0],
-                   [sin(theta1), cos(theta1)*cos(alpha1), -cos(theta1)*sin(alpha1), 0],
-                   [0, sin(alpha1), cos(alpha1), d1],
+    A1 = np.array([[cos(theta1), -sin(theta1),  0, 0],
+                   [sin(theta1), cos(theta1), 0, 0],
+                   [0, 0, 1, h1],
                    [0, 0, 0, 1]])
     
     A1Jeremy = np.array([[cos(theta1), -sin(theta1)*cos(alpha1),  sin(theta1)*sin(alpha1), 0],
                    [sin(theta1), cos(theta1)*cos(alpha1), -cos(theta1)*sin(alpha1), 0],
-                   [0, sin(alpha1), cos(alpha1), d1],
+                   [0, sin(alpha1), cos(alpha1), h1],
                    [0, 0, 0, 1]])
     
-    A2 = np.array([[cos(theta2-l2_reset), -sin(theta2-l2_reset)*cos(alpha2), sin(theta2)*sin(alpha2), l2*cos(theta2-l2_reset)],
-                   [sin(theta2-l2_reset), cos(theta2-l2_reset)*cos(alpha2), -cos(theta2)*sin(alpha2), l2*sin(theta2-l2_reset)],
-                   [0, sin(alpha2), cos(alpha2), -d2],
+    A2 = np.array([[1, 0, 0, l1],
+                   [0, 1, 0, 0],
+                   [0, 0, 1, 0],
+                   [0, 0, 0, 1]])
+    A3 = np.array([[cos(theta2-l2_reset), -sin(theta2-l2_reset), 0, l2*cos(theta2-l2_reset)],
+                   [sin(theta2-l2_reset), cos(theta2-l2_reset), 0, l2*sin(theta2-l2_reset)],
+                   [0, 0, 1, -h2],
                    [0, 0, 0, 1]])
     
     A2Jeremy = np.array([[cos(theta2), -sin(theta2)*cos(alpha2), sin(theta2)*sin(alpha2), l2*cos(theta2)],
                    [sin(theta2), cos(theta2)*cos(alpha2), -cos(theta2)*sin(alpha2), l2*sin(theta2)],
-                   [0, sin(alpha2), cos(alpha2), d2],
+                   [0, sin(alpha2), cos(alpha2), -h2],
                    [0, 0, 0, 1]])
     
     A12 = np.dot(A1,A2)
+    A123 = np.dot(A12, A3)
     A12J = np.dot(A1Jeremy, A2Jeremy)
     P = np.array([[0],[0],[3],[1]])
-    end_effector = np.dot(A12, P)
-    end = utime.ticks_us()
-    diff = utime.ticks_diff(end, start)
-    print(A12)
-    print(A12J)
-    print(end_effector)
-    print('Elapsed Time: %4.2f microseconds' % (diff))
+    end_effector = np.dot(A123, P)
+    print('matt:' + str(A123))
+    print('Jeremy:' + str(A12J))
+
+
     
     #fwd kinematics end effectors must be adjusted
     
@@ -98,8 +102,8 @@ def inv_kinematics(x, y):
 
     return (theta_1_first, theta_2_first)
 # x^2 + y^2 >= <= 8
-#inv kinematics is exactly like it is in matlab
+
 
 if __name__ == '__main__':
-    print(fwd_kinematics(0, 0, 8, 4, 1.57))
-    print(inv_kinematics(4,0))
+    print(fwd_kinematics(1.272, 0.7227, 8, 4, 1.57))
+    print(inv_kinematics(4,4))
