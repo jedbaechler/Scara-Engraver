@@ -80,16 +80,21 @@ if __name__ == "__main__":
     '''@brief    testing block for encoder-motor pair
     '''
     
-    import motor_baechler_chappell_wimberley as motor
+    import motor_baechler_chappell_wimberley as motor_drv
     
     ENA = pyb.Pin (pyb.Pin.board.PA10, pyb.Pin.OPEN_DRAIN, pull=pyb.Pin.PULL_UP)
     IN1 = pyb.Pin (pyb.Pin.board.PB4, pyb.Pin.OUT_PP)
     IN2 = pyb.Pin (pyb.Pin.board.PB5, pyb.Pin.OUT_PP)
     tim3 = pyb.Timer (3, freq=20000)
-    moe = motor.MotorDriver(ENA, IN1, IN2, tim3)
-    moe.set_duty(-50)
+    mot1 = motor_drv.MotorDriver(ENA, IN1, IN2, tim3)
 
+    ENB = pyb.Pin (pyb.Pin.board.PC1, pyb.Pin.OUT_PP) #motor 2 enabler
+    IN3 = pyb.Pin (pyb.Pin.board.PA0, pyb.Pin.OUT_PP)
+    IN4 = pyb.Pin (pyb.Pin.board.PA1, pyb.Pin.OUT_PP) #motor port B pins
+    tim5 = pyb.Timer (5, freq=20000) #using timer 5, must be different than m1
+    mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
+    
+    
+    mot1.set_duty(0)
+    mot2.set_duty(-20)
     red = EncoderReader(1)
-#     while True: #testing code 
-#         print(red.read())
-#         utime.sleep_ms(100)

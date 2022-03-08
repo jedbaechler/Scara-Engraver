@@ -42,7 +42,8 @@ def motor1_func ():
     '''
     while True:
         try:
-            PWM1 = controller1.run(enc1.read(), 15000)
+            
+            PWM1 = controller1.run(enc1.read(), 200)
             controller1.add_data()
 #           print('Motor 1 Data:', enc1.read(), PWM1)
             mot1.set_duty(PWM1)
