@@ -34,6 +34,7 @@ def position_check():
                 current_theta2 = list_theta2.get()
             
         count = 1
+        print('Inside position_check')
         theta1.put(current_theta1)
         theta2.put(current_theta2)
             
@@ -52,17 +53,12 @@ def motor1_func ():
 
     '''
     while True:
-        try:
-            PWM1 = controller1.run(enc1.read(), theta1.get())
-            controller1.add_data()
+        PWM1 = controller1.run(enc1.read(), theta1.get())
+        controller1.add_data()
 #           print('Motor 1 Data:', enc1.read(), PWM1)
-            mot1.set_duty(PWM1)
-            yield (0)
-                
-        except:
-            print('Failed to execute Task')
-            pass
-        
+        mot1.set_duty(PWM1)
+        print('Inside motor1 task')
+        yield (0)
     
 
 def motor2_func():
@@ -74,14 +70,12 @@ def motor2_func():
 
     '''
     while True:
-        try:
-            PWM2 = controller2.run(enc2.read(), theta2.get())
-            controller2.add_data()
+        PWM2 = controller2.run(enc2.read(), theta2.get())
+        controller2.add_data()
 #           print('Motor 2 Data:', enc2.read(), PWM2)
-            mot2.set_duty(PWM2)
-            yield (0)
-        except:
-            pass
+        mot2.set_duty(PWM2)
+        print('Inside motor 2 func')
+        yield (0)
 
 
 def task2_fun ():
@@ -215,11 +209,11 @@ if __name__ == "__main__":
         list_theta1.put(constant*output_kin[0])
         list_theta2.put(constant*output_kin[1])
         
-    while True:
-        print(list_theta1.get(), list_theta2.get())
+#     while True:
+#         print(list_theta1.get(), list_theta2.get())
     
     homing_script.homing()
-    
+    pinC0.high()
     mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 0, 
                          period = 5, profile = True, trace = False)
     mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 0, 
