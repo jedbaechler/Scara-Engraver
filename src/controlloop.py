@@ -40,7 +40,7 @@ class ClosedLoop:
         self.enc1 = EncoderReader.EncoderReader(1)
         self.old_pos = 0
         self.old_time = utime.ticks_us()
-        self.error = np.array('f', [0]*3000)
+        self.error = np.array([0]*1000)
         self.i = 0
         self.integral = 0
         self.deriv = 0

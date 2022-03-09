@@ -18,20 +18,31 @@ import gc
 import pyb
 import cotask
 import task_share
-import EncoderReader, controlloop, pyb, utime, x_yimport, user_task
+import EncoderReader, controlloop, pyb, utime, x_yimport, user_task, kinematics, homing_script
 import motor_baechler_chappell_wimberley as motor_drv
 
 def position_check():
-    current_x = enc1.read()
-    current_y = enc2.read()
-    
-    if current_x <  next_c:
-        next_x.get()
-        next_y.get()
-        #must figure out how to hold last coordinate for position check
+    count = 0
+    while True:
+        current_theta1 = enc1.read()
+        current_theta2 = enc2.read()
         
-   # if current_position within 5 ticks, proceed
-
+        if not count == 0:
+            if current_theta1 == previous_theta1 and current_theta2 == previous_theta2:
+                pinC0.high()
+                current_theta1 = list_theta1.get()
+                current_theta2 = list_theta2.get()
+            
+        count = 1
+        theta1.put(current_theta1)
+        theta2.put(current_theta2)
+            
+        previous_theta1 = current_theta1
+        previous_theta2 = current_theta2
+        yield(0)
+        
+    
+    
 def motor1_func ():
     '''
         @brief      instantiates motor 1 object
@@ -42,12 +53,12 @@ def motor1_func ():
     '''
     while True:
         try:
-            
-            PWM1 = controller1.run(enc1.read(), 200)
+            PWM1 = controller1.run(enc1.read(), theta1.get())
             controller1.add_data()
 #           print('Motor 1 Data:', enc1.read(), PWM1)
             mot1.set_duty(PWM1)
             yield (0)
+                
         except:
             print('Failed to execute Task')
             pass
@@ -64,7 +75,7 @@ def motor2_func():
     '''
     while True:
         try:
-            PWM2 = controller2.run(enc2.read())
+            PWM2 = controller2.run(enc2.read(), theta2.get())
             controller2.add_data()
 #           print('Motor 2 Data:', enc2.read(), PWM2)
             mot2.set_duty(PWM2)
@@ -104,10 +115,21 @@ if __name__ == "__main__":
                            name = "Queue 0")
     
     xypos = []
-
-    next_x = task_share.Queue('f', 1000, thread_protect = False, overwrite = False,
+    
+    theta1 = task_share.Share('h', thread_protect = False, name = "Motor Angle 1")
+    theta2 = task_share.Share('h', thread_protect = False, name = "Motor Angle 2")
+    
+    next_theta1 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 1")
+    next_theta2 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 2")
+    
+    list_theta1 = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
+                             name = 'theta1-coordinates')
+    list_theta2 = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
+                             name = 'theta2-coordinates')
+    
+    next_x = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
                              name = 'x-coordinates')
-    next_y = task_share.Queue('f', 1000, thread_protect = False, overwrite = False,
+    next_y = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
                              name = 'y-coordinates')
 
     mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
@@ -129,16 +151,23 @@ if __name__ == "__main__":
 
     mot1 = motor_drv.MotorDriver(ENA, IN1, IN2, tim3) #instants motor object
     enc1 = EncoderReader.EncoderReader(1) #instantiates encoder reader object
-    controller1 = controlloop.ClosedLoop(.1, 0.00005, .75, 30000) #sets gain and setpoint of m1
+    controller1 = controlloop.ClosedLoop(.1, 0.00005, .75, 0) #sets gain and setpoint of m1
 
     mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
     enc2 = EncoderReader.EncoderReader(2) #now for encoder 1
-    controller2 = controlloop.ClosedLoop(.1, 0.00005, 0.75, 30000) #sets gain and setpoint of m2
+    controller2 = controlloop.ClosedLoop(.1, 0.00005, 0.75, 0) #sets gain and setpoint of m2
+    
+
+    
+    pinC2 = pyb.Pin (pyb.Pin.board.PC2, pyb.Pin.IN) # homing limit switch J1
+    pinC3 = pyb.Pin (pyb.Pin.board.PC3, pyb.Pin.IN) # homing limit switch J2
+    pinC0 = pyb.Pin(pyb.Pin.board.PC0, pyb.Pin.OUT_PP)  # laser on/off
+    pinB3 = pyb.Pin(pyb.Pin.board.PB3, pyb.Pin.IN)  # lid open/closed
     
     ''' ISR Definition and Initiation'''
     
-    pinPC2 = pyb.Pin (pyb.Pin.board.PC2, pyb.Pin.IN)
     tim1 = pyb.Timer (1, freq=100)
+
 
 
     def ISR_SCREEN(IRQ_src):
@@ -150,46 +179,59 @@ if __name__ == "__main__":
         @param      IRQ_src         The cause of the interrupt
         '''
         
-        if pinPC2.value() == 1:
-            print('Lid is closed')
+        if pinB3.value() == 1:
+#             pinC0.high()
+#             print('Lid is closed')
+            pass
             
-        elif pinPC2.value() == 0:
+            
+        elif pinB3.value() == 0:
             print('Lid is open')
+            pinC0.low()
             mot1.disable()
             mot2.disable()
+            
         # Set mosfet control pin off for laser
         # turn motors off and halt the operation of tasks
         # move to home position and wait for user to begin program again.
     
 
     tim1.callback(ISR_SCREEN) # runs when interrupt is called
-
-    # Create the tasks. If trace is enabled for any task, memory will be
-    # allocated for state transition tracing, and the application will run out
-    # of memory after a while and quit. Therefore, use tracing only for 
-    # debugging and set trace to False when it's not needed
-    task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
-                         period = 10, profile = True, trace = False)
-#     task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
-#                          period = 1, profile = True, trace = False)
-    #runs task on motor 2, controlling the object
     
+    '''This is the start of our program'''
     filename = user_task.run()
+ 
+    coord_values = x_yimport.x_yimport(filename)
+ 
+    x = coord_values[0]
+    y = coord_values[1]
+    print(len(x))
+    for i in range(len(x)):
+        
+        constant = 8384/(2*3.1415)*20/110 #radians to ticks
+        
+        output_kin = kinematics.inv_kinematics(x[i], y[i])
+        
+        list_theta1.put(constant*output_kin[0])
+        list_theta2.put(constant*output_kin[1])
+        
+    while True:
+        print(list_theta1.get(), list_theta2.get())
     
-    with open(filename, 'r') as x_y:
-        listpos = x_y.readlines()
-        for i in listpos:
-            xypos.append(i.strip().split(','))
-        for xind in range(1,len(listpos)):
-            next_x.put(float(xypos[xind][1].strip('"')))
-        for yind in range(1,len(listpos)):
-            next_y.put(float(xypos[yind][2].strip('"')))
+    homing_script.homing()
     
-        print(next_x)
-        print(next_y)
+    mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 0, 
+                         period = 5, profile = True, trace = False)
+    mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 0, 
+                           period = 5, profile = True, trace = False)
+    pos_checker3 = cotask.Task (position_check, name = 'Position_Checker', priority = 1,
+                                period = 1, profile = True, trace = False)
+    
+    
 
-    cotask.task_list.append (task1)
-#     cotask.task_list.append (task2)
+    cotask.task_list.append(mot_task1)
+    cotask.task_list.append(mot_task2)
+    cotask.task_list.append(pos_checker3)
 
     # Run the memory garbage collector to ensure memory is as defragmented as
     # possible before the real-time scheduler is started
@@ -204,16 +246,10 @@ if __name__ == "__main__":
     # Empty the comm port buffer of the character(s) just pressed
     vcp.read ()
     
-    
-    for i in range(len(controller1.time)):
-        print(controller1.time[i], ',', controller1.listpos[i])
-    
-    print('Stop Transmission')
-            
-    
+
 
 # Print a table of task data and a table of shared information data
     print ('\n' + str (cotask.task_list))
     print (task_share.show_all ())
-    print (task1.get_trace ())
+#     print (task1.get_trace ())
     print ('\r\n')

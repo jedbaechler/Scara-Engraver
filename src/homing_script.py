@@ -30,29 +30,40 @@ mot2.set_duty(-25)
 limit_trigger1 = 0
 limit_trigger2 = 0
 
-while True:
+def homing():
     
-    if pinC3.value() == 1:
-        print('Arm 1 has reached its hardstop')
-        enc1.zero()
-        mot1.disable()
-        limit_trigger1 = 1
+    
+    mot2.set_duty(-25)
+    limit_trigger1 = 0
+    limit_trigger2 = 0
+    
+    while True:
+        if pinC3.value() == 1:
+            print('Arm 2 has reached its hardstop')
+            enc2.zero()
+            mot2.disable()
+            limit_trigger1 = 1
+            break
+            
+        else:
+    #         print('Moving arm 1 to homing location')
+            pass
         
-    else:
-#         print('Moving arm 1 to homing location')
-        pass
-
-    if pinC2.value() == 1:
-        print('Arm 2 has reached its hardstop')
-        enc2.zero()
-        mot2.disable()
-        limit_trigger2 = 1
-    else:
-#         print('Moving Arm 2 to home location')
-        pass
-    if limit_trigger1 == 1 and limit_trigger2 == 1:
-        print('Zero positions have been reached')
-        break
+    mot1.set_duty(-25)
     
-print(enc1.read(), enc2.read())
+    while True:
+        if pinC2.value() == 1:
+            print('Arm 1 has reached its hardstop')
+            enc1.zero()
+            mot1.disable()
+            limit_trigger2 = 1
+            break
+        
+        else:
+    #         print('Moving Arm 2 to home location')
+            pass
+        
+    print('Zero positions have been reached!')
+        
+    print(enc1.read(), enc2.read())
     

@@ -101,7 +101,9 @@ def inv_kinematics(x, y):
     theta_2_second = 2*atan((-(x**2 + y**2 - 16)*(x**2 + y**2 - 144))**(1/2)/(x**2 + y**2 - 144))
 
     return (theta_1_first, theta_2_first)
-# x^2 + y^2 >= <= 8
+
+# x^2 + y^2 <= 8
+# x^2 + y^2 >= 4
 
 
 if __name__ == '__main__':

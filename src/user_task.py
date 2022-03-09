@@ -9,19 +9,19 @@
 @date      5-March-2022
 '''
 
-print('Welcome to the SCARA Robot Laser engraver! Please select the image file you wish to engrave.')
-
-print('Press "1" for image 1 \r\n Press "2" for image 2 \r\n Press "3" for image 3 \r\n')
-
 def run():
-    if input == 1:
+    
+    print('Welcome to the SCARA Robot Laser engraver! Please select the image file you wish to engrave.')
+    print('Press "1" for image 1 \r\n Press "2" for image 2 \r\n Press "3" for image 3 \r\n')
+    image = int(input('Please Enter Desired Image!:\r\n'))
+    if image == 1:
         filename = 'xy.txt'
         
     
-    elif input == 2:
+    elif image == 2:
         filename = 'file2.txt'
         
-    elif input == 3:
+    elif image == 3:
         filename = 'file3.txt'
         
     else:
