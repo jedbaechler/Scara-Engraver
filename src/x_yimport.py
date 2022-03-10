@@ -19,10 +19,11 @@ def x_yimport(filename):
     with open(filename, 'r') as x_y:
         
         listpos = x_y.readlines()
-        
+        print(listpos)
         for i in listpos:
             xypos.append(i.strip().split(','))
-
+        print(xypos)
+        print(xypos[1][1])
         for xind in range(1,len(listpos)):
             next_x.append(float(xypos[xind][1].strip('"'))) # xypos[xind] is the problem
             
@@ -31,3 +32,7 @@ def x_yimport(filename):
             next_y.append(float(xypos[yind][2].strip('"')))
 
     return(next_x, next_y)     
+
+
+if __name__ == '__main__':
+    x_yimport('xy.txt')

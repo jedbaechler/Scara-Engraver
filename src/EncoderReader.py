@@ -95,5 +95,5 @@ if __name__ == "__main__":
     mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
     
     
-    mot1.set_duty(-50)
-    mot2.set_duty(0)
+    mot1.set_duty(0)
+    mot2.set_duty(100)

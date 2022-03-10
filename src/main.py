@@ -23,23 +23,26 @@ import motor_baechler_chappell_wimberley as motor_drv
 
 def position_check():
     count = 0
+    update_theta1 = 0
+    update_theta2 = 0
     while True:
         current_theta1 = enc1.read()
         current_theta2 = enc2.read()
         print('current position:',current_theta1, current_theta2)
         if not count == 0:
             if current_theta1 == previous_theta1 and current_theta2 == previous_theta2:
+                print('Setpoint has been hit')
                 pinC0.high()
-                current_theta1 = list_theta1.get()
-                current_theta2 = list_theta2.get()
-                
-            
+                update_theta1 = list_theta1.get()
+                update_theta2 = list_theta2.get()
+#                 
+#             
         count = 1
         print('Inside position_check')
-        theta1.put(current_theta1)
-        theta2.put(current_theta2)
-        print('current_theta values', theta1.get(), theta2.get())
-            
+        theta1.put(update_theta1)
+        theta2.put(update_theta2)
+        print('Setpoint values', theta1.get(), theta2.get())
+#             
         previous_theta1 = current_theta1
         previous_theta2 = current_theta2
         print('leaving position_check')
@@ -61,7 +64,7 @@ def motor1_func ():
 #           print('Motor 1 Data:', enc1.read(), PWM1)
         mot1.set_duty(PWM1)
         print('Inside motor1 task')
-        print('PWM Output', PWM1)
+        print('Motor 1 PWM Output', PWM1)
         yield ()
     
 
@@ -75,9 +78,10 @@ def motor2_func():
     '''
     while True:
         PWM2 = controller2.run(enc2.read(), theta2.get())
-        controller2.add_data()
+#         controller2.add_data()
 #           print('Motor 2 Data:', enc2.read(), PWM2)
         mot2.set_duty(PWM2)
+        print('Motor 2 duty:', PWM2)
         print('Inside motor 2 func')
         yield()
 
@@ -200,13 +204,14 @@ if __name__ == "__main__":
     tim1.callback(ISR_SCREEN) # runs when interrupt is called
     
     '''This is the start of our program'''
+    
     filename = user_task.run()
  
     coord_values = x_yimport.x_yimport(filename)
  
     x = coord_values[0]
     y = coord_values[1]
-    
+
     for i in range(len(x)):
         
         constant = 8384/(2*3.1415)*20/110 #radians to ticks
@@ -221,20 +226,28 @@ if __name__ == "__main__":
  
     
     homing_script.homing()
-
-    mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
-                         period = 10, profile = True, trace = False)
-    mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
-                           period = 10, profile = True, trace = False)
+    
+    mot1.set_duty(0)
+    mot2.set_duty(20)
+    pinC0.high()
+    
+#     mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
+#                          period = 10, profile = True, trace = False)
+#     mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
+#                            period = 10, profile = True, trace = False)
     pos_checker3 = cotask.Task (position_check, name = 'Position_Checker', priority = 1,
                                 period = 5, profile = True, trace = False)
-    
-    
+#     
+#     mot2.set_duty(-20)  
+# 
+#     cotask.task_list.append(mot_task1)
+#     cotask.task_list.append(mot_task2)
 
-    cotask.task_list.append(mot_task1)
-    cotask.task_list.append(mot_task2)
     cotask.task_list.append(pos_checker3)
 
+
+    
+        
     # Run the memory garbage collector to ensure memory is as defragmented as
     # possible before the real-time scheduler is started
     gc.collect ()
