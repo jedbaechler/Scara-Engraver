@@ -22,9 +22,9 @@ def x_yimport(filename):
         
         for i in listpos:
             xypos.append(i.strip().split(','))
-            
+
         for xind in range(1,len(listpos)):
-            next_x.append(float(xypos[xind][1].strip('"')))
+            next_x.append(float(xypos[xind][1].strip('"'))) # xypos[xind] is the problem
             
             
         for yind in range(1,len(listpos)):

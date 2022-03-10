@@ -49,7 +49,7 @@ def homing():
     #         print('Moving arm 1 to homing location')
             pass
         
-    mot1.set_duty(-25)
+    mot1.set_duty(25)
     
     while True:
         if pinC2.value() == 1:

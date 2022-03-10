@@ -55,13 +55,13 @@ class ClosedLoop:
            
         self.pos = pos
         self.ref = ref
-        self.error[i] = self.ref-self.pos
+        self.error[self.i] = self.ref-self.pos
         self.new_time = utime.ticks_us()
         self.new_pos = self.enc1.read()
         self.time_diff = utime.ticks_diff(self.new_time, self.old_time)
-        self.deriv = self.error[i]/self.time_diff
+        self.deriv = self.error[self.i]/self.time_diff
         self.integral += self.error[self.i]*self.time_diff
-        duty = self.error * self.Kp + self.deriv * self.Kd + self.integral * self.Ki
+        duty = self.error[self.i] * self.Kp + self.deriv * self.Kd + self.integral * self.Ki
         self.old_pos = self.new_pos
         self.old_time = utime.ticks_us()
         self.i += 1
@@ -99,6 +99,20 @@ class ClosedLoop:
 if __name__ == '__main__':
     '''@brief   test code for closed loop controller
     '''
+    import motor_baechler_chappell_wimberley as motor_drv
+    import EncoderReader, pyb
     
-    controller = ClosedLoop(.15, 10)
-    print(controller.run(5))
+    ENB = pyb.Pin (pyb.Pin.board.PC1, pyb.Pin.OUT_PP) #motor 2 enabler
+    IN3 = pyb.Pin (pyb.Pin.board.PA0, pyb.Pin.OUT_PP)
+    IN4 = pyb.Pin (pyb.Pin.board.PA1, pyb.Pin.OUT_PP) #motor port B pins
+    tim5 = pyb.Timer (5, freq=20000) #using timer 5, must be different than m1
+    
+    mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1
+    enc2 = EncoderReader.EncoderReader(2) #now for encoder 1
+    enc2.zero()
+    controller2 = ClosedLoop(.1, 0.00005, 0.75, 0) #sets gain and setpoint of m2
+    setpoint = 100
+    while True:
+        PWM = controller2.run(enc2.read(), setpoint)
+        print(PWM)
+        mot2.set_duty(PWM)

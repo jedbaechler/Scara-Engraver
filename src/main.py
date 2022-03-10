@@ -26,21 +26,24 @@ def position_check():
     while True:
         current_theta1 = enc1.read()
         current_theta2 = enc2.read()
-        
+        print('current position:',current_theta1, current_theta2)
         if not count == 0:
             if current_theta1 == previous_theta1 and current_theta2 == previous_theta2:
                 pinC0.high()
                 current_theta1 = list_theta1.get()
                 current_theta2 = list_theta2.get()
+                
             
         count = 1
         print('Inside position_check')
         theta1.put(current_theta1)
         theta2.put(current_theta2)
+        print('current_theta values', theta1.get(), theta2.get())
             
         previous_theta1 = current_theta1
         previous_theta2 = current_theta2
-        yield(0)
+        print('leaving position_check')
+        yield()
         
     
     
@@ -58,7 +61,8 @@ def motor1_func ():
 #           print('Motor 1 Data:', enc1.read(), PWM1)
         mot1.set_duty(PWM1)
         print('Inside motor1 task')
-        yield (0)
+        print('PWM Output', PWM1)
+        yield ()
     
 
 def motor2_func():
@@ -75,7 +79,7 @@ def motor2_func():
 #           print('Motor 2 Data:', enc2.read(), PWM2)
         mot2.set_duty(PWM2)
         print('Inside motor 2 func')
-        yield (0)
+        yield()
 
 
 def task2_fun ():
@@ -104,14 +108,14 @@ if __name__ == "__main__":
            'Press ENTER to stop and show diagnostics.')
 
     # Create a share and a queue to test function and diagnostic printouts
-    share0 = task_share.Share ('h', thread_protect = False, name = "Share 0")
-    q0 = task_share.Queue ('L', 16, thread_protect = False, overwrite = False,
-                           name = "Queue 0")
+#     share0 = task_share.Share ('h', thread_protect = False, name = "Share 0")
+#     q0 = task_share.Queue ('L', 16, thread_protect = False, overwrite = False,
+#                            name = "Queue 0")
     
     xypos = []
     
-    theta1 = task_share.Share('h', thread_protect = False, name = "Motor Angle 1")
-    theta2 = task_share.Share('h', thread_protect = False, name = "Motor Angle 2")
+    theta1 = task_share.Share('f', thread_protect = False, name = "Motor Angle 1")
+    theta2 = task_share.Share('f', thread_protect = False, name = "Motor Angle 2")
     
     next_theta1 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 1")
     next_theta2 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 2")
@@ -126,10 +130,10 @@ if __name__ == "__main__":
     next_y = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
                              name = 'y-coordinates')
 
-    mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
-    des_pos = task_share.Share('h', name='des_pos') #shares desired position
-    kp = task_share.Share('h', name='kp') #shares kp
-    pwm1 = task_share.Share('h', name='pwm1') #shares motor 1 duty cycle
+#     mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
+#     des_pos = task_share.Share('h', name='des_pos') #shares desired position
+#     kp = task_share.Share('h', name='kp') #shares kp
+#     pwm1 = task_share.Share('h', name='pwm1') #shares motor 1 duty cycle
 
     """ PLEASE PLUG ENCODER 1 BLUE WIRE INTO B7 AND YELLOW WIRE TO B6"""
     ENA = pyb.Pin (pyb.Pin.board.PA10, pyb.Pin.OUT_PP) #motor 1 enabler
@@ -145,11 +149,14 @@ if __name__ == "__main__":
 
     mot1 = motor_drv.MotorDriver(ENA, IN1, IN2, tim3) #instants motor object
     enc1 = EncoderReader.EncoderReader(1) #instantiates encoder reader object
-    controller1 = controlloop.ClosedLoop(.1, 0.00005, .75, 0) #sets gain and setpoint of m1
+    #controller1 = controlloop.ClosedLoop(.1, 0.00005, .75, 0) #sets gain and setpoint of m1
+    controller1 = controlloop.ClosedLoop(10, 0)
 
     mot2 = motor_drv.MotorDriver(ENB, IN3, IN4, tim5) #now for motor 1 
     enc2 = EncoderReader.EncoderReader(2) #now for encoder 1
-    controller2 = controlloop.ClosedLoop(.1, 0.00005, 0.75, 0) #sets gain and setpoint of m2
+    #controller2 = controlloop.ClosedLoop(.1, 0.00005, 0.75, 0) #sets gain and setpoint of m2
+    controller2 = controlloop.ClosedLoop(10, 0)
+    
     
 
     
@@ -199,7 +206,7 @@ if __name__ == "__main__":
  
     x = coord_values[0]
     y = coord_values[1]
-    print(len(x))
+    
     for i in range(len(x)):
         
         constant = 8384/(2*3.1415)*20/110 #radians to ticks
@@ -211,15 +218,16 @@ if __name__ == "__main__":
         
 #     while True:
 #         print(list_theta1.get(), list_theta2.get())
+ 
     
     homing_script.homing()
-    pinC0.high()
-    mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 0, 
-                         period = 5, profile = True, trace = False)
-    mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 0, 
-                           period = 5, profile = True, trace = False)
+
+    mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
+                         period = 10, profile = True, trace = False)
+    mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
+                           period = 10, profile = True, trace = False)
     pos_checker3 = cotask.Task (position_check, name = 'Position_Checker', priority = 1,
-                                period = 1, profile = True, trace = False)
+                                period = 5, profile = True, trace = False)
     
     
 
@@ -234,9 +242,17 @@ if __name__ == "__main__":
     # Run the scheduler with the chosen scheduling algorithm. Quit if any 
     # character is received through the serial port
     vcp = pyb.USB_VCP ()
-    while not vcp.any ():
-        cotask.task_list.pri_sched ()
-
+    
+#     while not vcp.any ():
+    while True:
+        try:
+            cotask.task_list.pri_sched()
+        except KeyboardInterrupt:
+            pinC0.low()
+            mot1.set_duty(0)
+            mot2.set_duty(0)
+            
+            break
     # Empty the comm port buffer of the character(s) just pressed
     vcp.read ()
     
