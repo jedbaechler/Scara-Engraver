@@ -38,7 +38,8 @@
     
     @image                      html DH_Derivation.png      "Denavit-Hartenberg Matrix Derivations"  width = 800px
                                 
-    @subsection Control_Loop    In order to control the robot, we needed to come up with a set of tasks
+    @subsection Control_Loop    Control Scheme Description
+                                In order to control the robot, we needed to come up with a set of tasks
                                 that would be be performed over and over to move and control our two axes.
                                 The tasks we decided to use inluded a position check task, and a motor control
                                 task for each motor. The position check task was used to pull encoder position
@@ -50,9 +51,20 @@
                                 motor every time they are run. Once the position check task runs out of encoder values
                                 the engraver is turned off and the motors are sent to their home positions.
     
-    @subsection File_Descript   In order to organize our project files, we wrote as many external files as possible
+    @subsection File_Descript   File Descriptions
+                                In order to organize our project files, we wrote as many external files as possible
                                 with their own functions which we then called in our main script. The first method we
-                                call inside main is the user input function. This function is defined in the 
+                                call inside main is the user input function. This function is defined in the user_task.py
+                                file and allows the user to decide which text file will be imported for engraving. 
+                                Once the text file has been read into main, we perform the necessary kinematic conversions
+                                to turn x and y positions into encoder tick values. To do this we call the inv_kinematics
+                                function in kinematics.py. This is followed up with the homing method written to home the 
+                                two arms and zero the encoders at the given reset positions. This function is defined in 
+                                the homing_script.py file and is called inside main.py. Once our arms are homed and encoders
+                                zeroed, we instantiate our position check and control loop tasks as tasks and begin our 
+                                task scheduler with their respective periods and priorities. This control scheme runs until
+                                all x and y positions are hit and the robot is returned to its home location with the laser
+                                turned off. 
                                 
                                 
     @subsection Tasks           Task Diagram
