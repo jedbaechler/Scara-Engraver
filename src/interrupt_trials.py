@@ -42,18 +42,9 @@ def ISR_SCREEN(IRQ_src):
         pinPB0.low()
         # turn motors off and halt the operation of tasks
         motor_drv.disable()
-   
+
 
 tim1.callback(ISR_SCREEN) # runs when interrupt is called
-
-
-while True:
-    '''
-    @brief      sets pin low and high and retrieves ADC value each time
-    @details    This loop is just for our testing needs.
-    '''
-    
-    
     
 
 # We used this to test runs on first order response.

@@ -1,5 +1,14 @@
-'''
-@file homing_script.py
+'''     @file      homing_script.py
+        @brief     Homes robot
+        @details   The robot spins each axis one at a time until the limit
+                   switch is hit. This physical contact on the first arm 
+                   disables the motor then spins the second arm until it has
+                   reached its respective limit switch.
+
+        @author    Jeremy Baechler
+        @author    Kendall Chappell
+        @author    Matthew Wimberley
+        @date      5-March-2022
 '''
 
 import pyb, utime
@@ -30,8 +39,19 @@ mot2.set_duty(-25)
 limit_trigger1 = 0
 limit_trigger2 = 0
 
+'''@details     The above is all tester code for setting up the necessary robot
+                positions for the homing function to work properly. Notably, 
+                arm angle 1 must be less than arm 1 angle desired so that the
+                cables to not tangle.
+                '''
+
 def homing():
-    
+    ''' @brief       homes robot from which our inverse kinematics are with respect to
+        @details     This function moves one robot arm at a time until the limit
+                     switch is reached, thus breaking out of the loop 
+                     and activating the second motor arm. Once the home is reached,
+                     confirmation statements are printed to the screen.
+                     '''
     
     mot2.set_duty(-25)
     limit_trigger1 = 0

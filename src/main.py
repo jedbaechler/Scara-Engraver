@@ -3,10 +3,8 @@
     @brief          An adapted main file from basic_tasks.py
     @details        This file contains a demonstration program that runs 
                     some tasks, an inter-task shared variable, and a queue. 
-                    The tasks don't really do anything; the example just shows
-                    how these elements are created and run. 
-                    We added motor control functions that act as the 
-                    scheduler.
+                    There are 3 tasks that run our SCARA robot and we added
+                    motor control functions that act as the scheduler.
 
     @author         Jeremy Baechler
     @author         Kendall Chappell
@@ -22,7 +20,15 @@ import EncoderReader, controlloop, pyb, utime, x_yimport, user_task, kinematics,
 import motor_baechler_chappell_wimberley as motor_drv
 
 def position_check():
-    count = 0
+    '''@brief       checks the current positon before getting the next coordinate
+       @details     Using the shared values of theta1 and theta2, we know 
+                    what our next setpoint values are after performing 
+                    inverse kinematics on the x and y coordinates to obtain 
+                    the theta1 and theta2 values. We then check to see if the 
+                    motors have been at the same setpoint, at which point the 
+                    next theta values will be fed in. 
+                    '''
+                    
     update_theta1 = 0
     update_theta2 = 0
     while True:
@@ -31,6 +37,7 @@ def position_check():
         print('current position:',current_theta1, current_theta2)
         if not count == 0:
             if current_theta1 == previous_theta1 and current_theta2 == previous_theta2:
+                # works fine on Thonny, shows Undefined error in Spyder
                 print('Setpoint has been hit')
                 pinC0.high()
                 update_theta1 = list_theta1.get()
@@ -78,7 +85,7 @@ def motor2_func():
     '''
     while True:
         PWM2 = controller2.run(enc2.read(), theta2.get())
-#         controller2.add_data()
+        controller2.add_data()
 #           print('Motor 2 Data:', enc2.read(), PWM2)
         mot2.set_duty(PWM2)
         print('Motor 2 duty:', PWM2)
@@ -86,40 +93,18 @@ def motor2_func():
         yield()
 
 
-def task2_fun ():
-    '''
-        @brief      prints data from shares and queues
-        @details    Because this is a generator, we only print the data
-                    at our discretion.
-        '''
-        
-    while True:
-        # Show everything currently in the queue and the value in the share
-        print ("Share: {:}, Queue: ".format (share0.get ()), end='');
-        while q0.any ():
-            print ("{:} ".format (q0.get ()), end='')
-        print ('')
-
-        yield (0)
-
-
-# This code creates a share, a queue, and two tasks, then starts the tasks. The
-# tasks run until somebody presses ENTER, at which time the scheduler stops and
-# printouts show diagnostic information about the tasks, share, and queue.
-
 if __name__ == "__main__":
     print ('\033[2JTesting ME405 stuff in cotask.py and task_share.py\r\n'
            'Press ENTER to stop and show diagnostics.')
 
-    # Create a share and a queue to test function and diagnostic printouts
-#     share0 = task_share.Share ('h', thread_protect = False, name = "Share 0")
-#     q0 = task_share.Queue ('L', 16, thread_protect = False, overwrite = False,
-#                            name = "Queue 0")
     
     xypos = []
     
     theta1 = task_share.Share('f', thread_protect = False, name = "Motor Angle 1")
     theta2 = task_share.Share('f', thread_protect = False, name = "Motor Angle 2")
+    '''@details     The variables theta1 and theta2 are the only shares in use
+                    with our main file.
+                    '''
     
     next_theta1 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 1")
     next_theta2 = task_share.Share('f', thread_protect = False, name = "Subsequent Motor Angle 2")
@@ -134,10 +119,6 @@ if __name__ == "__main__":
     next_y = task_share.Queue('f', 100, thread_protect = False, overwrite = False,
                              name = 'y-coordinates')
 
-#     mot1_pos = task_share.Share('h', name='mot1_pos') #shares motor1 position
-#     des_pos = task_share.Share('h', name='des_pos') #shares desired position
-#     kp = task_share.Share('h', name='kp') #shares kp
-#     pwm1 = task_share.Share('h', name='pwm1') #shares motor 1 duty cycle
 
     """ PLEASE PLUG ENCODER 1 BLUE WIRE INTO B7 AND YELLOW WIRE TO B6"""
     ENA = pyb.Pin (pyb.Pin.board.PA10, pyb.Pin.OUT_PP) #motor 1 enabler
@@ -209,10 +190,15 @@ if __name__ == "__main__":
  
     coord_values = x_yimport.x_yimport(filename)
  
-    x = coord_values[0]
+    x = coord_values[0] 
     y = coord_values[1]
 
     for i in range(len(x)):
+        '''@brief       puts the theta1 & theta2 values we want into a queue
+           @details     After performing the necessary inverse kinematics,
+                        this theta in radians must be multiplied by a unit 
+                        conversion to get this into ticks for our encoder.
+                        '''
         
         constant = 8384/(2*3.1415)*20/110 #radians to ticks
         
@@ -231,21 +217,23 @@ if __name__ == "__main__":
     mot2.set_duty(20)
     pinC0.high()
     
-#     mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
-#                          period = 10, profile = True, trace = False)
-#     mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
-#                            period = 10, profile = True, trace = False)
-    pos_checker3 = cotask.Task (position_check, name = 'Position_Checker', priority = 1,
+    mot_task1 = cotask.Task (motor1_func, name = 'MotorTask_1', priority = 1, 
+                          period = 10, profile = True, trace = False)
+    mot_task2 = cotask.Task (motor2_func, name = 'MotorTask_2', priority = 1, 
+                            period = 10, profile = True, trace = False)
+    pos_checker3 = cotask.Task (position_check, name = 'Position_Checker', priority = 2,
                                 period = 5, profile = True, trace = False)
-#     
-#     mot2.set_duty(-20)  
-# 
-#     cotask.task_list.append(mot_task1)
-#     cotask.task_list.append(mot_task2)
-
+    '''@brief       3 tasks in total
+       @detail      Position checker has higher priority than the motor tasks.
+                    As well, the checker runs twice as fast as the motor tasks
+                    which just sends a PWM signal.
+                    '''
+    
+    cotask.task_list.append(mot_task1)
+    cotask.task_list.append(mot_task2)
     cotask.task_list.append(pos_checker3)
 
-
+    # appends task list to be run
     
         
     # Run the memory garbage collector to ensure memory is as defragmented as

@@ -1,5 +1,11 @@
 '''
     @file           x_yimport.py
+    @brief          imports x and y coordinates to be added to lists
+    @details        This program imports the xy coordinates the user selects
+                    then puts them into useable tuples. This tuple is then 
+                    passed to the kinematics program to calculate the 
+                    necessary arm angles. 
+                    
     @author         Jeremy Baechler
     @author         Kendall Chappell
     @author         Matthew Wimberley
@@ -16,6 +22,15 @@ next_x = []
 
 
 def x_yimport(filename):
+    ''' @brief       opens file and appends columns to useable lists
+        @details     After reading the lines from filename, this function will
+                     delimit the commas and quotes, then append the values to 
+                     lists. 
+        
+        @param       filename   This is the file that the user selected.
+        @return      the x and y coordinates as a tuple
+    '''
+    
     with open(filename, 'r') as x_y:
         
         listpos = x_y.readlines()
