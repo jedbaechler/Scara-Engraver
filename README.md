@@ -48,7 +48,9 @@
 > The output shaft from motor 2 is connected via pulley belt to the joint 2 coupler pulley. 
 > The joint 2 coupler is rigidly attached to Arm 2. At the end of arm 2, 
 > the laser module is mounted with 4 screws. 
+> 
 ![SCARA Exploded View](CAD_drawings.png)
+> 
 > Joint 2 is assembled similarly to joint 1. The joint 2 coupler slots into 
 > arm 1 and is fastened to a second pulley. Joint 2 has the same bearing 
 > configuration as joint 1. The output shaft from motor 2 is connected via 
@@ -82,8 +84,11 @@
 > Links for parts can be found below:
 >
 > [1] https://howtomechatronics.com/projects/scara-robot-how-to-build-your-own-arduino-based-robot/
+>
 > [2] https://www.amazon.com/Creality-Engraver-Engraving-Attachment-Blue-Violet/dp/B08SHCJ7V4
+>
 > [3] https://www.dfrobot.com/product-633.html
+>
 > [4] https://jtechphotonics.com/?product=445nm-laser-shielding
 >
 ### Software
@@ -102,6 +107,7 @@
 > we started by testing our software. We performed the inverse kinematic calculations using
 > the Denavit-Hartenberg method we learned from ME-423 Robotics. Once we found these equations, 
 > we used the ‘solve’ function on MATLAB to solve for theta1 and theta2. 
+>
 ![MATLAB Calculations](matlab_code.png)
 >
 > We tested many easy points, such as (0,4) and (4,0) where the first arm would 
