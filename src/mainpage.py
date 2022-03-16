@@ -68,18 +68,27 @@
                                 
                                 
     @subsection Tasks           Task Diagram
-   
+                                Our task diagram for our SCARA robot is found below. We had a massive overhaul of our 
+                                software structure since we started. Notably, we have three tasks with only two shares
+                                being used by the two motor tasks. Our third task, the positon checker, simply reads the 
+                                current encoder value and determines if the motor has not moved. If this is the case, 
+                                the setpoint has been reached and the next coordinate values are sent to each motor.
+                                
     @image                      html    SCARA_Task_Diagram-1.png    "SCARA Robot Task Diagram"  width = 800px 
     
     @subsection FSM             Finite State Machine Diagrams
+                                Our FSM diagrams have also simplified since we first embarked on our term project. 
+                                While the user task is not a task within our scheduler, it is necessary for preprocessing
+                                as the user must select an image which then returns the x and y coordinates for that image.
+                                These coordinates are then fed into a queue which the position checker task utilizes. From here,
+                                the current setpoint is compared to the desired setpoint, at which the next values will be taken
+                                by the motor tasks. The motor tasks do not return anything nor change other tasks' states.
+                                The motor tasks simply retrieve the setpoint values which the controller then manipulates
+                                to deliver a necessary PWM.
     
     @image                      html    User_Task_FSM-1.png           "User Task FSM"  width = 800px
     
     @image                      html    Position_Check_Task_FSM-1.png "Position Check Task FSM"  width = 800px
-    
-    @image                      html    Encoder_Task_FSM-1.png        "Encoder Task FSM"  width = 800px
-    
-    @image                      html    Controller_Task_FSM-1.png     "Controller Task FSM"  width = 800px
     
     @image                      html    Motor_Task_FSM-1.png          "Motor Task FSM"  width = 800px
 '''                         
